@@ -6,10 +6,11 @@ resources:
   - ../../services/node-svc
   - ../../services/redis-svc
   - networkpolicy.yaml
+  - ingress.yaml
 images:
   - name: nginx-svc
-    newName: nginx-service-v2
+    newName: ghcr.io/leeon3345/nginx-service-v2
+    newTag: latest
   - name: node-svc
-    newName: node-service-v2
-  - name: redis-svc
-    newName: redis-service-v2
+    newName: ghcr.io/leeon3345/node-service-v2
+    newTag: latest
