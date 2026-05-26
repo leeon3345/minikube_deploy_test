@@ -8,7 +8,7 @@ set -e
 PROJ=$1
 TOKEN=$2
 ARGOCD_SERVER="https://localhost:8080"
-EXPECTED_PROJECT_NAME="my-app-project"
+EXPECTED_PROJECT_NAME="minikube_deploy_test-project"
 ACTUAL_PROJECT_NAME="$PROJ-project"
 
 if [ -z "$PROJ" ] || [ -z "$TOKEN" ]; then
