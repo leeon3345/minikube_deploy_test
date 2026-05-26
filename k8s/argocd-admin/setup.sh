@@ -46,7 +46,7 @@ cat << 'EOF'
   deploy-role 전용 토큰을 등록해야 합니다. (최소 권한 원칙)
 
   발급 방법 (Argo CD CLI):
-    argocd login https://localhost:8080
+    argocd login https://localhost:8080/applications
     argocd proj role create-token my-app-project deploy-role
 
   발급한 토큰을 GitHub Repository Secret 에 등록:
@@ -56,5 +56,5 @@ EOF
 
 echo ""
 echo "✅ Argo CD GitHub SSO 설정 완료"
-echo "   브라우저에서 https://https://localhost:8080 접속 후"
+echo "   브라우저에서 https://https://localhost:8080/applications 접속 후"
 echo "   'Login with GitHub' 버튼으로 SSO 인증을 확인하세요."
