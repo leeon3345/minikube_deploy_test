@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: minikube-deploy-test-appset
+  namespace: argocd
+  labels:
+    app.kubernetes.io/managed-by: grad-deploy
+    grad-deploy/project: "minikube-deploy-test"
+spec:
+  # ── Git Generator ──────────────────────────────────
+  # k8s/projects/minikube-deploy-test/services/* 아래의 디렉터리를 자동 탐색.
+  # 새 폴더가 커밋되면 아래 template 기반으로 Application을 자동 생성한다.
+  generators:
+    - git:
+        repoURL: https://github.com/leeon3345/minikube_deploy_test
+        revision: HEAD
+        directories:
+          - path: "k8s/projects/minikube-deploy-test/services/*"
+
+  # ── 동기화 정책 ────────────────────────────────────
+  syncPolicy:
+    # ApplicationSet이 삭제될 때 생성된 Application도 함께 삭제
+    applicationsSync: sync
+    # 폴더 삭제 시 해당 Application 자동 삭제 허용
+    preserveResourcesOnDeletion: false
+
+  # ── Application 템플릿 ─────────────────────────────
+  # {{path.basename}} = 서비스 폴더명 (예: user-service, order-service)
+  # {{path}}          = 폴더 전체 경로 (예: k8s/projects/minikube-deploy-test/services/user-service)
+  template:
+    metadata:
+      # 앱 이름: "<프로젝트>-<서비스폴더명>" 형태로 고유하게 생성
+      name: "minikube-deploy-test-{{path.basename}}"
+      namespace: argocd
+      labels:
+        app.kubernetes.io/managed-by: grad-deploy
+        grad-deploy/project: "minikube-deploy-test"
+        grad-deploy/service: "{{path.basename}}"
+      annotations:
+        # 생성 출처 추적용 — Argo CD UI에서 확인 가능
+        grad-deploy/generated-from: "applicationset/minikube-deploy-test-appset"
+    spec:
+      project: minikube-deploy-test-project
+      source:
+        repoURL: https://github.com/leeon3345/minikube_deploy_test
+        targetRevision: HEAD
+        # 각 서비스 폴더를 kustomize base로 사용
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - ServerSideApply=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers: [/spec/replicas]
