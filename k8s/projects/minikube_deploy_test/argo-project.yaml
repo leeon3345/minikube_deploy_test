@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: minikube_deploy_test-project
+  name: minikube-deploy-test-project
   namespace: argocd
   labels:
     app.kubernetes.io/managed-by: grad-deploy
@@ -45,17 +45,17 @@ spec:
   #
   # 역할 2(인증/RBAC)에서 GitHub SSO 그룹을 이 role에 바인딩:
   #   argocd-cm ConfigMap의 policy.csv에 추가:
-  #   g, github-org:minikube_deploy_test-team, role:proj:minikube_deploy_test-project:deploy-role
+  #   g, github-org:minikube_deploy_test-team, role:proj:minikube-deploy-test-project:deploy-role
   roles:
     - name: deploy-role
       description: "CI pipeline role — sync and read only"
       policies:
-        - p, proj:minikube_deploy_test-project:deploy-role, applications, get,    minikube_deploy_test-project/*, allow
-        - p, proj:minikube_deploy_test-project:deploy-role, applications, sync,   minikube_deploy_test-project/*, allow
-        - p, proj:minikube_deploy_test-project:deploy-role, applications, action, minikube_deploy_test-project/*, allow
-        - p, proj:minikube_deploy_test-project:deploy-role, logs,         get,    minikube_deploy_test-project/*, allow
+        - p, proj:minikube-deploy-test-project:deploy-role, applications, get,    minikube-deploy-test-project/*, allow
+        - p, proj:minikube-deploy-test-project:deploy-role, applications, sync,   minikube-deploy-test-project/*, allow
+        - p, proj:minikube-deploy-test-project:deploy-role, applications, action, minikube-deploy-test-project/*, allow
+        - p, proj:minikube-deploy-test-project:deploy-role, logs,         get,    minikube-deploy-test-project/*, allow
     - name: readonly-role
       description: "Read-only access to this project"
       policies:
-        - p, proj:minikube_deploy_test-project:readonly-role, applications, get, minikube_deploy_test-project/*, allow
-        - p, proj:minikube_deploy_test-project:readonly-role, logs,         get, minikube_deploy_test-project/*, allow
+        - p, proj:minikube-deploy-test-project:readonly-role, applications, get, minikube-deploy-test-project/*, allow
+        - p, proj:minikube-deploy-test-project:readonly-role, logs,         get, minikube-deploy-test-project/*, allow

@@ -41,7 +41,7 @@ kubectl -n argocd patch secret argocd-secret \
 kubectl apply -f k8s/projects/minikube_deploy_test/argo-project.yaml -n argocd
 ```
 
-- `minikube_deploy_test-project` 프로젝트를 먼저 생성합니다.
+- `minikube-deploy-test-project` 프로젝트를 먼저 생성합니다.
 - 이 단계를 건너뛰면 ApplicationSet sync 시 "project not found" 오류가 발생합니다.
 
 ### 2단계 — ApplicationSet 생성
@@ -88,7 +88,7 @@ main 브랜치 push → GitHub Actions → `kustomization.yaml` 이미지 태그
 
 수동 sync:
 ```bash
-argocd app sync minikube_deploy_test-<서비스명> --server <ARGOCD_SERVER>
+argocd app sync minikube-deploy-test-<서비스명> --server <ARGOCD_SERVER>
 ```
 
 ---
@@ -100,11 +100,11 @@ argocd app sync minikube_deploy_test-<서비스명> --server <ARGOCD_SERVER>
 1. **Argo CD 배포 상태 확인**
    ```bash
    # 특정 서비스 헬스 체크 완료 대기 (명확한 가시성)
-   argocd app wait minikube_deploy_test-<서비스명> --health
+   argocd app wait minikube-deploy-test-<서비스명> --health
    # 동기화 문제가 있을 경우 강제 동기화 수행
-   argocd app sync minikube_deploy_test-<서비스명> --force
+   argocd app sync minikube-deploy-test-<서비스명> --force
    # 또는 전체 애플리케이션 상태 확인
-   argocd app list | grep minikube_deploy_test
+   argocd app list | grep minikube-deploy-test
    ```
 
 2. **Kubernetes 파드(Pod) 상태 확인**

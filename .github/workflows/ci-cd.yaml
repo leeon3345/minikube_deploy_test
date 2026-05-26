@@ -112,7 +112,7 @@ jobs:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /tmp/sync_resp.json -w "%{http_code}" \
-            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/minikube_deploy_test/sync" \
+            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/minikube-deploy-test/sync" \
             -H "Authorization: Bearer ${ARGOCD_AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
             --insecure \
@@ -122,6 +122,6 @@ jobs:
             echo "::error::ARGOCD_TOKEN 만료. Settings → Accounts → admin → Generate New Token"
             exit 1
           elif [ "${HTTP_STATUS}" = "404" ]; then
-            echo "::error::앱 'minikube_deploy_test'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
+            echo "::error::앱 'minikube-deploy-test'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
             exit 1
           fi

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: minikube_deploy_test-appset
+  name: minikube-deploy-test-appset
   namespace: argocd
   labels:
     app.kubernetes.io/managed-by: grad-deploy
@@ -30,7 +30,7 @@ spec:
   template:
     metadata:
       # 앱 이름: "<프로젝트>-<서비스폴더명>" 형태로 고유하게 생성
-      name: "minikube_deploy_test-{{path.basename}}"
+      name: "minikube-deploy-test-{{path.basename}}"
       namespace: argocd
       labels:
         app.kubernetes.io/managed-by: grad-deploy
@@ -38,9 +38,9 @@ spec:
         grad-deploy/service: "{{path.basename}}"
       annotations:
         # 생성 출처 추적용 — Argo CD UI에서 확인 가능
-        grad-deploy/generated-from: "applicationset/minikube_deploy_test-appset"
+        grad-deploy/generated-from: "applicationset/minikube-deploy-test-appset"
     spec:
-      project: minikube_deploy_test-project
+      project: minikube-deploy-test-project
       source:
         repoURL: https://github.com/leeon3345/minikube_deploy_test
         targetRevision: HEAD

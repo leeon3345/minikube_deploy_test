@@ -7,8 +7,8 @@ set -e
 
 PROJ=$1
 TOKEN=$2
-ARGOCD_SERVER="https://johnston-initial-awareness-particle.trycloudflare.com"
-EXPECTED_PROJECT_NAME="minikube_deploy_test-project"
+ARGOCD_SERVER="johnston-initial-awareness-particle.trycloudflare.com"
+EXPECTED_PROJECT_NAME="minikube-deploy-test-project"
 ACTUAL_PROJECT_NAME="$PROJ-project"
 
 if [ -z "$PROJ" ] || [ -z "$TOKEN" ]; then

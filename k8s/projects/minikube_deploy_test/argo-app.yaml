@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: minikube_deploy_test
+  name: minikube-deploy-test
   namespace: argocd
   labels:
     app.kubernetes.io/managed-by: grad-deploy
     grad-deploy/project: "minikube_deploy_test"
 spec:
-  project: minikube_deploy_test-project
+  project: minikube-deploy-test-project
   source:
     repoURL: https://github.com/leeon3345/minikube_deploy_test
     targetRevision: HEAD

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: minikube_deploy_test
+  name: minikube-deploy-test
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,7 +10,7 @@ metadata:
     grad-deploy/owner: "minikube_deploy_test"
     grad-deploy/role: parent
 spec:
-  project: minikube_deploy_test-project
+  project: minikube-deploy-test-project
   source:
     repoURL: https://github.com/leeon3345/minikube_deploy_test
     targetRevision: HEAD

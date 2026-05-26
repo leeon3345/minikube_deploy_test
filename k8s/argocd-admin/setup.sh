@@ -40,7 +40,7 @@ kubectl rollout status deployment argocd-dex-server -n "${ARGOCD_NS}" --timeout=
 kubectl rollout status deployment argocd-server -n "${ARGOCD_NS}" --timeout=60s
 
 echo "▶ 5단계: deploy-role 전용 토큰 발급 안내"
-EXPECTED_PROJECT_NAME="minikube_deploy_test-project"
+EXPECTED_PROJECT_NAME="minikube-deploy-test-project"
 PROJECT_NAME="${ARGOCD_PROJECT:-$EXPECTED_PROJECT_NAME}"
 
 if [ -n "${ARGOCD_PROJECT:-}" ] && [ "$PROJECT_NAME" != "$EXPECTED_PROJECT_NAME" ]; then
