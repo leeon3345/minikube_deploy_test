@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default-quota
+  namespace: default
+  labels:
+    app.kubernetes.io/managed-by: grad-deploy
+  annotations:
+    grad-deploy/total-services: "3"
+    grad-deploy/margin-factor: "1.5"
+    grad-deploy/note: >
+      Grad-Deploy 자동 계산값. AppProject namespaceResourceBlacklist에 의해
+      사용자 Application이 수정/삭제 불가. 변경 시 kubectl apply 직접 사용.
+spec:
+  hard:
+    # 서비스 합산 Request × 1.5 (여유 배수)
+    requests.cpu: "375m"
+    requests.memory: "672Mi"
+    # Limit은 Request의 2배 (RA-03 Throttling 방지)
+    limits.cpu: "750m"
+    limits.memory: "1.3Gi"
+    # Pod / 오브젝트 수 상한
+    pods: "5"
+    services: "9"
+    persistentvolumeclaims: "2"
+    secrets: "12"
+    configmaps: "12"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limitrange
+  namespace: default
+  labels:
+    app.kubernetes.io/managed-by: grad-deploy
+  annotations:
+    grad-deploy/note: >
+      RA-01(BestEffort QoS 방지): Request 미설정 Pod에 default 값을 자동 주입.
+      max 값으로 단일 Pod의 자원 독점(RA-04)을 차단.
+spec:
+  limits:
+    - type: Container
+      # Request 미설정 시 자동 주입되는 기본값 (RA-01 방지)
+      defaultRequest:
+        cpu: "100m"
+        memory: "256Mi"
+      # Limit 미설정 시 자동 주입되는 기본값
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      # 단일 컨테이너 최대값 — Noisy Neighbor(RA-04) 차단
+      max:
+        cpu: "2000m"
+        memory: "4Gi"
+      # 최소값 — Probe 동작 보장 하한선
+      min:
+        cpu: "10m"
+        memory: "32Mi"
