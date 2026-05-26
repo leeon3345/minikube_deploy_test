@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-svc-nginx-conf
+  namespace: default
+  labels:
+    app: nginx-svc
+    app.kubernetes.io/managed-by: grad-deploy
+data:
+  default.conf: |
+    # Grad-Deploy 자동 생성 — nginx-svc nginx.conf
+    # 서비스 타입: Nginx (Reverse Proxy)
+    # 프록시 대상: 없음 (정적 파일 서빙만)
+    
+    
+    server {
+        listen 80;
+        server_name _;
+    
+        # 요청 크기 제한
+        client_max_body_size 10m;
+    
+        # 압축
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript;
+    
+            location / {
+                return 404;
+            }
+            location /healthz {
+                access_log off;
+                return 200 "ok";
+                add_header Content-Type text/plain;
+            }
+    }
