@@ -1,0 +1,10 @@
+# kind 로컬 레지스트리 사용 시 빌드 & 푸시:
+# docker build -t localhost:5001/node-svc:latest .
+# docker push localhost:5001/node-svc:latest
+# 그리고 deployment.yaml의 image를 localhost:5001/node-svc:latest 로 변경
+FROM node-backend:latest
+WORKDIR /app
+RUN echo '{"name":"node-svc","version":"1.0.0"}' > package.json && \
+    printf 'const http=require("http");\nhttp.createServer((_,r)=>{r.writeHead(200);r.end("ok")}).listen(3000)\n' > index.js
+EXPOSE 3000
+CMD ["node", "index.js"]
