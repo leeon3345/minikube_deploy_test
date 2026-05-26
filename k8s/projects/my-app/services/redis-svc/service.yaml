@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: default
+  labels:
+    app: redis-svc
+    app.kubernetes.io/managed-by: grad-deploy
+spec:
+  clusterIP: None
+  selector:
+    app: redis-svc
+  ports:
+    - port: 6379
+      targetPort: 6379
