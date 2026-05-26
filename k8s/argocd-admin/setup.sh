@@ -47,7 +47,7 @@ cat << 'EOF'
 
   발급 방법 (Argo CD CLI):
     argocd login https://localhost:8080
-    argocd proj role create-token my-app-project deploy-role
+    argocd proj role create-token minikube-test2-project deploy-role
 
   발급한 토큰을 GitHub Repository Secret 에 등록:
     gh secret set ARGOCD_TOKEN --body "<발급된 토큰>"
