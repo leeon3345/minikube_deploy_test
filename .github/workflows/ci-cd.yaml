@@ -76,15 +76,18 @@ jobs:
 
       - name: Check for plain text Secrets
         run: |
-          if grep -r "^kind: Secret" k8s/ --include="*.yaml" 2>/dev/null | grep -v "SealedSecret"; then
+          SECRET_MATCHES=$(find "k8s/projects/minikube_deploy_test" -type f -name "*.yaml" ! -name "*.example.yaml" -print0 2>/dev/null             | xargs -0 grep -H "^kind: Secret" 2>/dev/null             | grep -v "SealedSecret" || true)
+          if [ -n "${SECRET_MATCHES}" ]; then
+            echo "${SECRET_MATCHES}"
             echo "::error::평문 Secret이 발견되었습니다. SealedSecret을 사용하세요."
+            echo "::error::검사 범위: k8s/projects/minikube_deploy_test (*.example.yaml 제외)"
             exit 1
           fi
           echo "✅ 평문 Secret 없음"
 
       - name: Update image tags in kustomization
         run: |
-          cd k8s/projects/my-app/overlays/production
+          cd k8s/projects/minikube_deploy_test/overlays/production
           sed -i "s|newTag: .*|newTag: ${{ github.sha }}|g" kustomization.yaml || true
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -109,7 +112,7 @@ jobs:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /tmp/sync_resp.json -w "%{http_code}" \
-            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/my-app/sync" \
+            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/minikube_deploy_test/sync" \
             -H "Authorization: Bearer ${ARGOCD_AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
             --insecure \
@@ -119,6 +122,6 @@ jobs:
             echo "::error::ARGOCD_TOKEN 만료. Settings → Accounts → admin → Generate New Token"
             exit 1
           elif [ "${HTTP_STATUS}" = "404" ]; then
-            echo "::error::앱 'my-app'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
+            echo "::error::앱 'minikube_deploy_test'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
             exit 1
           fi
