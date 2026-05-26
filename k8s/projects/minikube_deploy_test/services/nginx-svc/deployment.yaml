@@ -16,16 +16,13 @@ spec:
       labels:
         app: nginx-svc
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
       volumes:
         - name: nginx-conf
           configMap:
             name: nginx-svc-nginx-conf
       containers:
         - name: nginx-svc
-          image: "nginx:1.25-alpine"
+          image: "nginx-svc:latest"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
