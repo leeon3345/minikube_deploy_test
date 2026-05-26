@@ -10,7 +10,7 @@ resources:
 images:
   - name: nginx-svc
     newName: ghcr.io/leeon3345/nginx-service-v2
-    newTag: latest
+    newTag: 303b4ab358df2b16a769bfcc01bd1050478e66d4
   - name: node-svc
     newName: ghcr.io/leeon3345/node-service-v2
-    newTag: latest
+    newTag: 303b4ab358df2b16a769bfcc01bd1050478e66d4
