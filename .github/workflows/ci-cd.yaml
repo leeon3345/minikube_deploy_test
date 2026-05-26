@@ -1,0 +1,124 @@
+name: Grad-Deploy CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-nginx-svc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Push nginx-svc
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.nginx-svc
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/nginx-service-v2:latest
+            ghcr.io/${{ github.repository_owner }}/nginx-service-v2:${{ github.sha }}
+          cache-from: type=gha,scope=nginx-svc
+          cache-to: type=gha,mode=max,scope=nginx-svc
+
+  build-node-svc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Push node-svc
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.node-svc
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/node-service-v2:latest
+            ghcr.io/${{ github.repository_owner }}/node-service-v2:${{ github.sha }}
+          cache-from: type=gha,scope=node-svc
+          cache-to: type=gha,mode=max,scope=node-svc
+
+  update-manifests:
+    needs: [build-nginx-svc, build-node-svc]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Check for plain text Secrets
+        run: |
+          if grep -r "^kind: Secret" k8s/ --include="*.yaml" 2>/dev/null | grep -v "SealedSecret"; then
+            echo "::error::평문 Secret이 발견되었습니다. SealedSecret을 사용하세요."
+            exit 1
+          fi
+          echo "✅ 평문 Secret 없음"
+
+      - name: Update image tags in kustomization
+        run: |
+          cd k8s/projects/my-app/overlays/production
+          sed -i "s|newTag: .*|newTag: ${{ github.sha }}|g" kustomization.yaml || true
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kustomization.yaml
+          git diff --staged --quiet || git commit -m "ci: update image tags [${{ github.sha }}]"
+          git pull --rebase origin main
+          git push
+
+      # [제거됨] Register Repo to ArgoCD 스텝
+      # ─────────────────────────────────────────────────────
+      # 이 스텝은 bootstrap.sh 와 중복 등록을 시도하여
+      # "existing repository spec is different" 충돌과
+      # CONNECTION STATUS=Failed 원인이 되었습니다.
+      #
+      # Repository 등록은 bootstrap.sh 가 Secret 방식으로
+      # 최초 1회만 처리하므로 워크플로우에서는 sync 만 트리거합니다.
+      # (옵션 A: 단일 등록 책임 — bootstrap.sh)
+
+      - name: Trigger Argo CD Sync
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+        run: |
+          HTTP_STATUS=$(curl -s -o /tmp/sync_resp.json -w "%{http_code}" \
+            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/my-app/sync" \
+            -H "Authorization: Bearer ${ARGOCD_AUTH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --insecure \
+            -d '{"prune":true,"strategy":{"hook":{"force":false}},"syncOptions":["CreateNamespace=true"]}')
+          echo "Argo CD Sync HTTP Status: ${HTTP_STATUS}"
+          if [ "${HTTP_STATUS}" = "401" ]; then
+            echo "::error::ARGOCD_TOKEN 만료. Settings → Accounts → admin → Generate New Token"
+            exit 1
+          elif [ "${HTTP_STATUS}" = "404" ]; then
+            echo "::error::앱 'my-app'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
+            exit 1
+          fi
