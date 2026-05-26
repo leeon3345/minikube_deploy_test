@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minikube-deploy-test
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/managed-by: grad-deploy
+    grad-deploy/owner: "minikube-deploy-test"
+    grad-deploy/role: parent
+spec:
+  project: minikube-deploy-test-project
+  source:
+    repoURL: https://github.com/leeon3345/minikube_deploy_test
+    targetRevision: HEAD
+    path: k8s/projects/minikube-deploy-test
+    directory:
+      recurse: false
+      include: 'argo-appset.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
