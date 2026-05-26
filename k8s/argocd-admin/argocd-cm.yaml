@@ -41,5 +41,5 @@ data:
   application.resourceTrackingMethod: label
 
   # ── UI 배너 ───────────────────────────────────────────
-  ui.bannercontent: "Grad-Deploy Managed Cluster — my-app"
+  ui.bannercontent: "Grad-Deploy Managed Cluster — minikube_deploy_test"
   ui.bannerurl: "https://https://localhost:8080"
