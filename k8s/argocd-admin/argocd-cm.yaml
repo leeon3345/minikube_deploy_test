@@ -15,8 +15,8 @@ data:
   # ── GitHub SSO (Dex OIDC) ────────────────────────────
   # 사전 준비 (GitHub OAuth App 생성):
   #   GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
-  #   Homepage URL   : https://https://localhost:8080
-  #   Callback URL   : https://https://localhost:8080/api/dex/callback
+  #   Homepage URL   : https://https://johnston-initial-awareness-particle.trycloudflare.com
+  #   Callback URL   : https://https://johnston-initial-awareness-particle.trycloudflare.com/api/dex/callback
   #
   # Client ID  → DeployPanel "SSO 설정" 탭에 입력 → GitHub Secret ARGOCD_GITHUB_CLIENT_ID 에 저장
   # Client Secret → setup.sh 를 실행해 argocd-secret 에 직접 주입 (Git 에 저장 금지)
@@ -28,7 +28,7 @@ data:
         config:
           clientID: REPLACE_WITH_OAUTH_CLIENT_ID
           clientSecret: $dex.github.clientSecret
-          redirectURI: https://https://localhost:8080/api/dex/callback
+          redirectURI: https://https://johnston-initial-awareness-particle.trycloudflare.com/api/dex/callback
 
   # ── 리소스 커스터마이징 ─────────────────────────────
   # HPA 가 replicas 를 자동 조정할 때 spec.replicas diff 로 OutOfSync 오탐 방지
@@ -42,4 +42,4 @@ data:
 
   # ── UI 배너 ───────────────────────────────────────────
   ui.bannercontent: "Grad-Deploy Managed Cluster — minikube_deploy_test"
-  ui.bannerurl: "https://https://localhost:8080"
+  ui.bannerurl: "https://https://johnston-initial-awareness-particle.trycloudflare.com"
