@@ -7,7 +7,7 @@ set -e
 
 PROJ=$1
 TOKEN=$2
-ARGOCD_SERVER="https://localhost:8080"
+ARGOCD_SERVER="https://localhost:8080/applications"
 
 if [ -z "$PROJ" ] || [ -z "$TOKEN" ]; then
   echo "사용법: bash test-rbac.sh <프로젝트명> <토큰>"
