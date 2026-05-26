@@ -40,14 +40,27 @@ kubectl rollout status deployment argocd-dex-server -n "${ARGOCD_NS}" --timeout=
 kubectl rollout status deployment argocd-server -n "${ARGOCD_NS}" --timeout=60s
 
 echo "▶ 5단계: deploy-role 전용 토큰 발급 안내"
-cat << 'EOF'
+EXPECTED_PROJECT_NAME="my-app-project"
+PROJECT_NAME="${ARGOCD_PROJECT:-$EXPECTED_PROJECT_NAME}"
+
+if [ -n "${ARGOCD_PROJECT:-}" ] && [ "$PROJECT_NAME" != "$EXPECTED_PROJECT_NAME" ]; then
+  echo "✕ 프로젝트명 불일치"
+  echo "  expected: $EXPECTED_PROJECT_NAME"
+  echo "  actual:   $PROJECT_NAME"
+  echo "  hint: ARGOCD_PROJECT 값을 비우거나, 실제 Argo CD project name 으로 맞추세요."
+  exit 1
+fi
+
+echo "  expected project: $EXPECTED_PROJECT_NAME"
+echo "  selected project : $PROJECT_NAME"
+cat <<EOF
   ────────────────────────────────────────────────────
   GitHub Secret ARGOCD_TOKEN 에는 admin 토큰 대신
   deploy-role 전용 토큰을 등록해야 합니다. (최소 권한 원칙)
 
   발급 방법 (Argo CD CLI):
     argocd login https://localhost:8080
-    argocd proj role create-token my-app-project deploy-role
+    argocd proj role create-token "$PROJECT_NAME" deploy-role
 
   발급한 토큰을 GitHub Repository Secret 에 등록:
     gh secret set ARGOCD_TOKEN --body "<발급된 토큰>"
