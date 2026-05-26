@@ -24,6 +24,8 @@ spec:
   destinations:
     - server: https://kubernetes.default.svc
       namespace: "default"
+    - server: https://kubernetes.default.svc
+      namespace: "argocd"
 
   # ── 클러스터 수준 리소스 허용 목록 ───────────────
   # Namespace 생성(CreateNamespace=true syncOption)에 필요
@@ -45,14 +47,13 @@ spec:
   #
   # 역할 2(인증/RBAC)에서 GitHub SSO 그룹을 이 role에 바인딩:
   #   argocd-cm ConfigMap의 policy.csv에 추가:
-  #   g, github-org:minikube_deploy_test-team, role:proj:minikube-deploy-test-project:deploy-role
+  #   g, github-org:minikube-deploy-test-team, role:proj:minikube-deploy-test-project:deploy-role
   roles:
     - name: deploy-role
       description: "CI pipeline role — sync and read only"
       policies:
         - p, proj:minikube-deploy-test-project:deploy-role, applications, get,    minikube-deploy-test-project/*, allow
         - p, proj:minikube-deploy-test-project:deploy-role, applications, sync,   minikube-deploy-test-project/*, allow
-        - p, proj:minikube-deploy-test-project:deploy-role, applications, action, minikube-deploy-test-project/*, allow
         - p, proj:minikube-deploy-test-project:deploy-role, logs,         get,    minikube-deploy-test-project/*, allow
     - name: readonly-role
       description: "Read-only access to this project"
