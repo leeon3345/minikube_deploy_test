@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-svc-config
+  namespace: default
+  labels:
+    app: nginx-svc
+    app.kubernetes.io/managed-by: grad-deploy
+data:
+  # 설정값 없음
