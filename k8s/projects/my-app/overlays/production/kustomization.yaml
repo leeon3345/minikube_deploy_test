@@ -3,13 +3,13 @@ kind: Kustomization
 namespace: default
 resources:
   - ../../services/nginx-svc
-  - ../../services/redis-svc
   - ../../services/node-svc
+  - ../../services/redis-svc
   - networkpolicy.yaml
 images:
   - name: nginx-svc
     newName: nginx-service-v2
-  - name: redis-svc
-    newName: redis-service-v2
   - name: node-svc
     newName: node-service-v2
+  - name: redis-svc
+    newName: redis-service-v2
