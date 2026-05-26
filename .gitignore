@@ -1,0 +1,35 @@
+# ── Grad-Deploy 자동 생성 ─────────────────────────────
+# 절대 커밋 금지 — 비밀번호·인증 정보
+
+# 평문 Secret 파일 (.gitignore가 자동 보호)
+**/secret.yaml
+**/secrets.yaml
+**/*-secret.yaml
+**/*-secrets.yaml
+
+# 환경변수 파일
+.env
+.env.*
+!.env.example
+
+# 로컬 키 파일
+*.key
+*.pem
+*.p12
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# 빌드 산출물
+build/
+dist/
+target/
