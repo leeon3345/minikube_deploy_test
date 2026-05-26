@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   labels:
     app.kubernetes.io/managed-by: grad-deploy
-    grad-deploy/project: "minikube_deploy_test"
+    grad-deploy/project: "minikube-deploy-test"
 spec:
   project: minikube-deploy-test-project
   source:
