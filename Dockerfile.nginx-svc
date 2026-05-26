@@ -1,0 +1,5 @@
+# kind 로컬 레지스트리 사용 시 빌드 & 푸시:
+# docker build -t localhost:5001/nginx-svc:latest .
+# docker push localhost:5001/nginx-svc:latest
+# 그리고 deployment.yaml의 image를 localhost:5001/nginx-svc:latest 로 변경
+FROM nginx:latest
