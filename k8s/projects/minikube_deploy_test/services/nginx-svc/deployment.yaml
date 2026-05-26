@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-svc
+  namespace: default
+  labels:
+    app: nginx-svc
+    app.kubernetes.io/managed-by: grad-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-svc
+  template:
+    metadata:
+      labels:
+        app: nginx-svc
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-svc-nginx-conf
+      containers:
+        - name: nginx-svc
+          image: "nginx:1.25-alpine"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          envFrom:
+            - configMapRef:
+                name: nginx-svc-config
+            - secretRef:
+                name: nginx-svc-secret
+                optional: true
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 3
