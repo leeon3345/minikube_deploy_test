@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: minikube_deploy_test-project
+  namespace: argocd
+  labels:
+    app.kubernetes.io/managed-by: grad-deploy
+    grad-deploy/project: "minikube_deploy_test"
+  # Finalizer: 프로젝트 삭제 전 소속 Application이 모두 삭제되어야 함
+  # GE 엔진 Case 6 (Finalizer Stuck) 방지 — Application을 먼저 지운 뒤 프로젝트 삭제
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "Grad-Deploy managed project for minikube_deploy_test"
+
+  # ── 허용 소스 저장소 ──────────────────────────────
+  # 이 목록 외 repoURL은 Application에서 사용 불가
+  sourceRepos:
+    - "https://github.com/leeon3345/minikube_deploy_test"
+
+  # ── 배포 허용 대상 ────────────────────────────────
+  # server + namespace 조합으로 배포 범위를 제한
+  # 다른 팀의 namespace에 배포하는 사고를 구조적으로 차단
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "default"
+
+  # ── 클러스터 수준 리소스 허용 목록 ───────────────
+  # Namespace 생성(CreateNamespace=true syncOption)에 필요
+  # 나머지 클러스터 리소스(Node, ClusterRole 등)는 기본 차단
+  clusterResourceWhitelist: []
+
+  # ── Namespace 수준 리소스 차단 목록 ──────────────
+  # ResourceQuota·LimitRange는 플랫폼 팀이 관리
+  # 사용자 Application이 임의로 삭제/수정하면 안 됨
+  namespaceResourceBlacklist:
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+
+  # ── RBAC 역할 정의 ────────────────────────────────
+  # deploy-role: GitHub Actions CI가 사용하는 최소 권한 역할
+  #   - sync / get 만 허용, delete / update 불가
+  #
+  # 역할 2(인증/RBAC)에서 GitHub SSO 그룹을 이 role에 바인딩:
+  #   argocd-cm ConfigMap의 policy.csv에 추가:
+  #   g, github-org:minikube_deploy_test-team, role:proj:minikube_deploy_test-project:deploy-role
+  roles:
+    - name: deploy-role
+      description: "CI pipeline role — sync and read only"
+      policies:
+        - p, proj:minikube_deploy_test-project:deploy-role, applications, get,    minikube_deploy_test-project/*, allow
+        - p, proj:minikube_deploy_test-project:deploy-role, applications, sync,   minikube_deploy_test-project/*, allow
+        - p, proj:minikube_deploy_test-project:deploy-role, applications, action, minikube_deploy_test-project/*, allow
+        - p, proj:minikube_deploy_test-project:deploy-role, logs,         get,    minikube_deploy_test-project/*, allow
+    - name: readonly-role
+      description: "Read-only access to this project"
+      policies:
+        - p, proj:minikube_deploy_test-project:readonly-role, applications, get, minikube_deploy_test-project/*, allow
+        - p, proj:minikube_deploy_test-project:readonly-role, logs,         get, minikube_deploy_test-project/*, allow
