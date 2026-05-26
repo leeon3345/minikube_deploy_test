@@ -1,0 +1,22 @@
+# kind 클러스터 설정 — Grad-Deploy v2
+# 사용법: kind create cluster --name grad-deploy --config kind-config.yaml
+#
+# 사전 요구사항:
+#   brew install kind  (macOS) / choco install kind  (Windows)
+#   Docker Desktop 실행 중
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+nodes:
+  - role: control-plane
+    # Nginx Ingress Controller를 위한 포트 매핑
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+  - role: worker
+  - role: worker
