@@ -41,5 +41,5 @@ data:
   application.resourceTrackingMethod: label
 
   # ── UI 배너 ───────────────────────────────────────────
-  ui.bannercontent: "Grad-Deploy Managed Cluster — minikube-deploy-test"
+  ui.bannercontent: "Grad-Deploy Managed Cluster — minikube_deploy_test"
   ui.bannerurl: "https://https://johnston-initial-awareness-particle.trycloudflare.com"
