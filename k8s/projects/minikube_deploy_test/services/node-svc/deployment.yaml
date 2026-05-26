@@ -21,7 +21,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: node-svc
-          image: "node:20-alpine"
+          image: "node-svc:latest"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
