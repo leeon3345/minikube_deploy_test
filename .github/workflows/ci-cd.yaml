@@ -84,7 +84,7 @@ jobs:
 
       - name: Update image tags in kustomization
         run: |
-          cd k8s/projects/my-app/overlays/production
+          cd k8s/projects/minikube-test2/overlays/production
           sed -i "s|newTag: .*|newTag: ${{ github.sha }}|g" kustomization.yaml || true
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -109,7 +109,7 @@ jobs:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /tmp/sync_resp.json -w "%{http_code}" \
-            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/my-app/sync" \
+            -X POST "https://${ARGOCD_SERVER}/api/v1/applications/minikube-test2/sync" \
             -H "Authorization: Bearer ${ARGOCD_AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
             --insecure \
@@ -119,6 +119,6 @@ jobs:
             echo "::error::ARGOCD_TOKEN 만료. Settings → Accounts → admin → Generate New Token"
             exit 1
           elif [ "${HTTP_STATUS}" = "404" ]; then
-            echo "::error::앱 'my-app'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
+            echo "::error::앱 'minikube-test2'이 없음. kubectl apply -f k8s/argo-app.yaml -n argocd 필요"
             exit 1
           fi
