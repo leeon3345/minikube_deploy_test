@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/managed-by: grad-deploy
+  annotations:
+    grad-deploy/note: >
+      플랫폼 담당자 전용. Application sync 대상에서 제외할 것.
+      변경: kubectl apply -f k8s/argocd-admin/argocd-rbac-cm.yaml -n argocd
+data:
+  # 명시적 역할 미지정 사용자는 기본적으로 조회 권한
+  policy.default: role:readonly
+
+  policy.csv: |
+    # ════════════════════════════════════════════════════
+    # Grad-Deploy RBAC 정책 (Casbin policy.csv 형식)
+    # p 규칙: p, <role>, <resource>, <action>, <scope>, <effect>
+    # g 규칙: g, <subject(GitHub 유저명)>, <role>
+    # GitHub 유저명 형식: "leesean2"  예) g, leesean2, role:admin
+    # ════════════════════════════════════════════════════
+    
+    # ── role:admin — 전체 관리자 ─────────────────────────
+    # 지정된 관리자(GitHub 유저)에게 부여
+    # Argo CD 내 모든 리소스 생성/수정/삭제 가능
+    p, role:admin, applications,    *, */*, allow
+    p, role:admin, applicationsets, *, */*, allow
+    p, role:admin, clusters,        *, */*, allow
+    p, role:admin, repositories,    *, */*, allow
+    p, role:admin, accounts,        *, */*, allow
+    p, role:admin, certificates,    *, */*, allow
+    p, role:admin, gpgkeys,         *, */*, allow
+    p, role:admin, logs,            *, */*, allow
+    p, role:admin, exec,            *, */*, allow
+    
+    # ── 유저명 기준 역할 바인딩 (DeployPanel 연동) ─────
+    # 사용자가 지정되지 않았습니다.
+    # DeployPanel SSO 설정 탭에서 사용자를 추가하면 여기에 자동 반영됩니다.
+    # 예시: g, leesean2, role:admin
+
+  # GitHub 유저명으로 매핑하므로 이메일 스코프 등 사용
+  scopes: "[email]"
