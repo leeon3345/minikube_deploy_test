@@ -25,7 +25,7 @@ spec:
             name: nginx-svc-nginx-conf
       containers:
         - name: nginx-svc
-          image: "nginx-svc:latest"
+          image: "nginx:1.25-alpine"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
